@@ -1,0 +1,216 @@
+package com.ginsberg.junit.exit;
+
+import java.io.FileDescriptor;
+import java.net.InetAddress;
+import java.security.Permission;
+
+public class DisallowExitSecurityManager extends SecurityManager {
+    private final SecurityManager delegatedSecurityManager;
+    private Integer firstExitStatusCode;
+
+    public DisallowExitSecurityManager(SecurityManager originalSecurityManager) {
+        this.delegatedSecurityManager = originalSecurityManager;
+    }
+
+    /**
+     * This is the one method we truly override in this class, all others are delegated.
+     *
+     * @param statusCode the exit status
+     */
+    @Override
+    public void checkExit(int statusCode) {
+        if(firstExitStatusCode == null) {
+            this.firstExitStatusCode = statusCode;
+        }
+        throw new SystemExitPreventedException();
+    }
+
+    public Integer getFirstExitStatusCode() {
+        return firstExitStatusCode;
+    }
+
+    @Override
+    public Object getSecurityContext() {
+        return delegatedSecurityManager == null ? null : delegatedSecurityManager.getSecurityContext();
+    }
+
+    @Override
+    public void checkPermission(Permission perm) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkPermission(perm);
+        }
+    }
+
+    @Override
+    public void checkPermission(Permission perm, Object context) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkPermission(perm, context);
+        }
+    }
+
+    @Override
+    public void checkCreateClassLoader() {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkCreateClassLoader();
+        }
+    }
+
+    @Override
+    public void checkAccess(Thread t) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkAccess(t);
+        }
+    }
+
+    @Override
+    public void checkAccess(ThreadGroup g) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkAccess(g);
+        }
+    }
+
+    @Override
+    public void checkExec(String cmd) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkExec(cmd);
+        }
+    }
+
+    @Override
+    public void checkLink(String lib) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkLink(lib);
+        }
+    }
+
+    @Override
+    public void checkRead(FileDescriptor fd) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkRead(fd);
+        }
+    }
+
+    @Override
+    public void checkRead(String file) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkRead(file);
+        }
+    }
+
+    @Override
+    public void checkRead(String file, Object context) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkRead(file, context);
+        }
+    }
+
+    @Override
+    public void checkWrite(FileDescriptor fd) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkWrite(fd);
+        }
+    }
+
+    @Override
+    public void checkWrite(String file) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkWrite(file);
+        }
+    }
+
+    @Override
+    public void checkDelete(String file) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkDelete(file);
+        }
+    }
+
+    @Override
+    public void checkConnect(String host, int port) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkConnect(host, port);
+        }
+    }
+
+    @Override
+    public void checkConnect(String host, int port, Object context) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkConnect(host, port, context);
+        }
+    }
+
+    @Override
+    public void checkListen(int port) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkListen(port);
+        }
+    }
+
+    @Override
+    public void checkAccept(String host, int port) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkAccept(host, port);
+        }
+    }
+
+    @Override
+    public void checkMulticast(InetAddress maddr) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkMulticast(maddr);
+        }
+    }
+
+    @Override
+    public void checkPropertiesAccess() {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkPropertiesAccess();
+        }
+    }
+
+    @Override
+    public void checkPropertyAccess(String key) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkPropertyAccess(key);
+        }
+    }
+
+    @Override
+    public void checkPrintJobAccess() {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkPrintJobAccess();
+        }
+    }
+
+    @Override
+    public void checkPackageAccess(String pkg) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkPackageAccess(pkg);
+        }
+    }
+
+    @Override
+    public void checkPackageDefinition(String pkg) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkPackageDefinition(pkg);
+        }
+    }
+
+    @Override
+    public void checkSetFactory() {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkSetFactory();
+        }
+    }
+
+    @Override
+    public void checkSecurityAccess(String target) {
+        if (delegatedSecurityManager != null) {
+            delegatedSecurityManager.checkSecurityAccess(target);
+        }
+    }
+
+    @Override
+    public ThreadGroup getThreadGroup() {
+        return delegatedSecurityManager == null ? null : delegatedSecurityManager.getThreadGroup();
+    }
+}

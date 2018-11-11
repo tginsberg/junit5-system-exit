@@ -1,0 +1,3 @@
+rootProject.name = 'junit5-system-exit'
+
+enableFeaturePreview('STABLE_PUBLISHING')

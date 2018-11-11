@@ -35,6 +35,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.platform.commons.support.AnnotationSupport.findAnnotation;
 
+/**
+ * Does the work of installing the DisallowExitSecurityManager, interpreting the test results, and
+ * returning the original SecurityManager to service.
+ */
 public class SystemExitExtension implements BeforeEachCallback, AfterEachCallback, TestExecutionExceptionHandler {
     private Integer expectedStatusCode;
     private final DisallowExitSecurityManager disallowExitSecurityManager = new DisallowExitSecurityManager(System.getSecurityManager());

@@ -28,6 +28,11 @@ import java.io.FileDescriptor;
 import java.net.InetAddress;
 import java.security.Permission;
 
+/**
+ * This is a SecurityManager that will prevent the system from exiting. If that happens, it will
+ * record the status code that was attempted. All other actions are delegated to another SecurityManager,
+ * optionally provided at construction.
+ */
 public class DisallowExitSecurityManager extends SecurityManager {
     private final SecurityManager delegatedSecurityManager;
     private Integer firstExitStatusCode;

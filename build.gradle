@@ -33,7 +33,7 @@ ext {
 }
 
 group 'com.ginsberg'
-version '1.0.0-SNAPSHOT'
+version '1.0.0'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -66,6 +66,10 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
+task javadocJar(type: Jar) {
+    from javadoc
+    classifier = 'javadoc'
+}
 
 publishing {
     publications {
@@ -75,6 +79,7 @@ publishing {
             version = project.version
             from components.java
             artifact sourcesJar
+            artifact javadocJar
             pom {
                 name = 'junit5-system-exit'
                 description = 'A JUnit5 Extension to help write tests that call System.exit()'
@@ -120,6 +125,12 @@ publishing {
                 password sonatypePassword
             }
         }
+    }
+}
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html4', true)
     }
 }
 

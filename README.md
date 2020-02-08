@@ -27,7 +27,7 @@ testImplementation("com.ginsberg:junit5-system-exit:1.0.0")
 
 ## Use cases
 
-**A Test that expects `System.out()` to be called, with any status code:**
+**A Test that expects `System.exit()` to be called, with any status code:**
 
 ```java
 public class MyTestCases { 
@@ -40,7 +40,7 @@ public class MyTestCases {
 }
 ```
 
-**A Test that expects `System.out(1)` to be called, with a specific status code:**
+**A Test that expects `System.exit(1)` to be called, with a specific status code:**
 
 ```java
 public class MyTestCases {

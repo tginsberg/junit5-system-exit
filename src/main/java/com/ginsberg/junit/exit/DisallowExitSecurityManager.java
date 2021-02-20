@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Todd Ginsberg
+ * Copyright (c) 2021 Todd Ginsberg
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -51,7 +51,7 @@ public class DisallowExitSecurityManager extends SecurityManager {
         if(firstExitStatusCode == null) {
             this.firstExitStatusCode = statusCode;
         }
-        throw new SystemExitPreventedException();
+        throw new SystemExitPreventedException(statusCode);
     }
 
     public Integer getFirstExitStatusCode() {

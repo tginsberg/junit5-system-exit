@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Todd Ginsberg
+ * Copyright (c) 2021 Todd Ginsberg
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,10 +29,12 @@ import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
 
+import java.lang.annotation.Annotation;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.platform.commons.support.AnnotationSupport.findAnnotation;
 
 /**
@@ -41,6 +43,7 @@ import static org.junit.platform.commons.support.AnnotationSupport.findAnnotatio
  */
 public class SystemExitExtension implements BeforeEachCallback, AfterEachCallback, TestExecutionExceptionHandler {
     private Integer expectedStatusCode;
+    private boolean failOnSystemExit;
     private final DisallowExitSecurityManager disallowExitSecurityManager = new DisallowExitSecurityManager(System.getSecurityManager());
     private SecurityManager originalSecurityManager;
 
@@ -48,7 +51,12 @@ public class SystemExitExtension implements BeforeEachCallback, AfterEachCallbac
     public void afterEach(ExtensionContext context) {
         // Return the original SecurityManager, if any, to service.
         System.setSecurityManager(originalSecurityManager);
-        if (expectedStatusCode == null) {
+
+        if (disallowExitSecurityManager.getFirstExitStatusCode() != null && failOnSystemExit) {
+            fail("Unexpected System.exit() with status code '" +
+                    disallowExitSecurityManager.getFirstExitStatusCode() +
+                    "' caught");
+        } else if (expectedStatusCode == null) {
             assertNotNull(
                     disallowExitSecurityManager.getFirstExitStatusCode(),
                     "Expected System.exit() to be called, but it was not"
@@ -67,8 +75,11 @@ public class SystemExitExtension implements BeforeEachCallback, AfterEachCallbac
         // Set aside the current SecurityManager
         originalSecurityManager = System.getSecurityManager();
 
+        // Should we fail on a System.exit() rather than letting it bubble out?
+        failOnSystemExit = getAnnotation(context, FailOnSystemExit.class).isPresent();
+
         // Get the expected exit status code, if any
-        getAnnotation(context).ifPresent(code -> expectedStatusCode = code.value());
+        getAnnotation(context, ExpectSystemExitWithStatus.class).ifPresent(code -> expectedStatusCode = code.value());
 
         // Install our own SecurityManager
         System.setSecurityManager(disallowExitSecurityManager);
@@ -91,12 +102,12 @@ public class SystemExitExtension implements BeforeEachCallback, AfterEachCallbac
     }
 
     // Find the annotation on a method, or failing that, a class.
-    private Optional<ExpectSystemExitWithStatus> getAnnotation(final ExtensionContext context) {
-        final Optional<ExpectSystemExitWithStatus> method = findAnnotation(context.getTestMethod(), ExpectSystemExitWithStatus.class);
+    private <T extends Annotation> Optional<T> getAnnotation(final ExtensionContext context, final Class<T> annotationClass) {
+        final Optional<T> method = findAnnotation(context.getTestMethod(), annotationClass);
         if (method.isPresent()) {
             return method;
         } else {
-            return findAnnotation(context.getTestClass(), ExpectSystemExitWithStatus.class);
+            return findAnnotation(context.getTestClass(), annotationClass);
         }
     }
 }

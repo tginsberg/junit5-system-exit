@@ -53,10 +53,23 @@ public class MyTestCases {
 }
 ```
 
-The `@ExpectSystemExit` and `@ExpectSystemExitWithStatus` annotations can be applied to methods, classs, or annotations (to act as meta-annotations).
+**A Test that should not expect `System.exit(1)` to be called, and fails the test if it does:**
+
+```java
+public class MyTestCases {
+    
+    @Test
+    @FailOnSystemExit
+    public void thisTestWillFail() {
+        System.exit(1);
+    }
+}
+```
+
+The `@ExpectSystemExit`, `@ExpectSystemExitWithStatus`, and `@FailOnSystemExit` annotations can be applied to methods, classes, or annotations (to act as meta-annotations).
 
 ## Contributing and Issues
 
 Please feel free to file issues for change requests or bugs. If you would like to contribute new functionality, please contact me first!
 
-Copyright &copy; 2018 by Todd Ginsberg
+Copyright &copy; 2021 by Todd Ginsberg

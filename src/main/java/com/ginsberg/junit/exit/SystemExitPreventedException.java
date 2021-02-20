@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Todd Ginsberg
+ * Copyright (c) 2021 Todd Ginsberg
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,4 +30,13 @@ package com.ginsberg.junit.exit;
  */
 public class SystemExitPreventedException extends SecurityException {
 
+    private final int statusCode;
+
+    public SystemExitPreventedException(int statusCode) {
+        this.statusCode = statusCode;
+    }
+
+    public int getStatusCode() {
+        return statusCode;
+    }
 }

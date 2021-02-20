@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Todd Ginsberg
+ * Copyright (c) 2021 Todd Ginsberg
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,6 +44,7 @@ class DisallowExitSecurityManagerTest {
         try {
             securityManager.checkExit(code);
         } catch (final SystemExitPreventedException e) {
+            assertEquals(code, e.getStatusCode());
             // Gulp!
         }
     }

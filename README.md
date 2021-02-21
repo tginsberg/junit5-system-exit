@@ -19,7 +19,7 @@ testImplementation("com.ginsberg:junit5-system-exit:1.1.1")
 <dependency>
     <groupId>com.ginsberg</groupId>
     <artifactId>junit5-system-exit</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <scope>test</scope>
 </dependency>
 ```

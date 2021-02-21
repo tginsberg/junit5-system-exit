@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import static com.ginsberg.junit.exit.TestUtils.assertTestFails;
+import static com.ginsberg.junit.exit.TestUtils.assertTestSucceeds;
 
 class FailOnSystemExitTest {
 
@@ -39,9 +40,21 @@ class FailOnSystemExitTest {
     }
 
     @Test
+    @DisplayName("@FailOnSystemExit on method - System.exit not called")
+    void succeedWhenNotCallingSystemExitInMethod() {
+        assertTestSucceeds(FailOnSystemExitAtTestLevel.class, "doesNotCallSystemExit");
+    }
+
+    @Test
     @DisplayName("@FailOnSystemExit on class - exception caught and fails test")
     void failOnSystemExitOnClass() {
         assertTestFails(FailOnSystemExitAtClassLevel.class);
+    }
+
+    @Test
+    @DisplayName("@FailOnSystemExit on class - System.exit not called")
+    void succeedWhenNotCallingSystemExitOnClass() {
+        assertTestSucceeds(FailOnSystemExitAtClassLevelWithoutSystemExit.class);
     }
 
     @EnabledIfSystemProperty(named = "running_within_test", matches = "true")
@@ -50,6 +63,12 @@ class FailOnSystemExitTest {
         @FailOnSystemExit
         void callsSystemExit() {
             System.exit(42);
+        }
+
+        @Test
+        @FailOnSystemExit
+        void doesNotCallSystemExit() {
+            // Nothing to do
         }
     }
 
@@ -61,5 +80,15 @@ class FailOnSystemExitTest {
             System.exit(42);
         }
     }
+
+    @EnabledIfSystemProperty(named = "running_within_test", matches = "true")
+    @FailOnSystemExit
+    static class FailOnSystemExitAtClassLevelWithoutSystemExit {
+        @Test
+        void doesNotCallSystemExit() {
+            // Nothing to do
+        }
+    }
+
 
 }

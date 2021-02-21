@@ -34,7 +34,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.platform.commons.support.AnnotationSupport.findAnnotation;
 
 /**
@@ -52,10 +51,12 @@ public class SystemExitExtension implements BeforeEachCallback, AfterEachCallbac
         // Return the original SecurityManager, if any, to service.
         System.setSecurityManager(originalSecurityManager);
 
-        if (disallowExitSecurityManager.getFirstExitStatusCode() != null && failOnSystemExit) {
-            fail("Unexpected System.exit() with status code '" +
-                    disallowExitSecurityManager.getFirstExitStatusCode() +
-                    "' caught");
+        if (failOnSystemExit) {
+            assertEquals(
+                    0,
+                    disallowExitSecurityManager.getPreventedSystemExitCount(),
+                    "Unexpected System.exit(" + disallowExitSecurityManager.getFirstExitStatusCode() + ") caught"
+            );
         } else if (expectedStatusCode == null) {
             assertNotNull(
                     disallowExitSecurityManager.getFirstExitStatusCode(),

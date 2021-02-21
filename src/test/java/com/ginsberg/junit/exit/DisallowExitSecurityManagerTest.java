@@ -40,6 +40,15 @@ class DisallowExitSecurityManagerTest {
         assertEquals(Integer.valueOf(1), securityManager.getFirstExitStatusCode());
     }
 
+    @Test
+    @DisplayName("Counts number of exits prevented")
+    void countsExitsPrevented() {
+        final DisallowExitSecurityManager securityManager = new DisallowExitSecurityManager(null);
+        exit(securityManager, 1);
+        exit(securityManager, 2);
+        assertEquals(2, securityManager.getPreventedSystemExitCount());
+    }
+
     private void exit(final SecurityManager securityManager, int code) {
         try {
             securityManager.checkExit(code);

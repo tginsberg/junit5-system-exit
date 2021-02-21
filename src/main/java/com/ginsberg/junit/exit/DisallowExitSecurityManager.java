@@ -36,6 +36,7 @@ import java.security.Permission;
 public class DisallowExitSecurityManager extends SecurityManager {
     private final SecurityManager delegatedSecurityManager;
     private Integer firstExitStatusCode;
+    private int preventedSystemExitCount = 0;
 
     public DisallowExitSecurityManager(SecurityManager originalSecurityManager) {
         this.delegatedSecurityManager = originalSecurityManager;
@@ -51,11 +52,16 @@ public class DisallowExitSecurityManager extends SecurityManager {
         if(firstExitStatusCode == null) {
             this.firstExitStatusCode = statusCode;
         }
+        preventedSystemExitCount += 1;
         throw new SystemExitPreventedException(statusCode);
     }
 
     public Integer getFirstExitStatusCode() {
         return firstExitStatusCode;
+    }
+
+    public int getPreventedSystemExitCount() {
+        return preventedSystemExitCount;
     }
 
     @Override

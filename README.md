@@ -10,7 +10,7 @@ Copy the following into your `build.gradle` or `build.xml`.
 **Gradle**
 
 ```groovy
-testImplementation("com.ginsberg:junit5-system-exit:1.1.0")
+testImplementation("com.ginsberg:junit5-system-exit:1.1.1")
 ```
 
 **Maven**

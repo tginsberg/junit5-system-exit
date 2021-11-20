@@ -43,7 +43,7 @@ import static org.junit.platform.commons.support.AnnotationSupport.findAnnotatio
 public class SystemExitExtension implements BeforeEachCallback, AfterEachCallback, TestExecutionExceptionHandler {
     private Integer expectedStatusCode;
     private boolean failOnSystemExit;
-    private final DisallowExitSecurityManager disallowExitSecurityManager = new DisallowExitSecurityManager(System.getSecurityManager());
+    private DisallowExitSecurityManager disallowExitSecurityManager;
     private SecurityManager originalSecurityManager;
 
     @Override
@@ -51,23 +51,31 @@ public class SystemExitExtension implements BeforeEachCallback, AfterEachCallbac
         // Return the original SecurityManager, if any, to service.
         System.setSecurityManager(originalSecurityManager);
 
-        if (failOnSystemExit) {
-            assertEquals(
-                    0,
-                    disallowExitSecurityManager.getPreventedSystemExitCount(),
-                    "Unexpected System.exit(" + disallowExitSecurityManager.getFirstExitStatusCode() + ") caught"
-            );
-        } else if (expectedStatusCode == null) {
-            assertNotNull(
-                    disallowExitSecurityManager.getFirstExitStatusCode(),
-                    "Expected System.exit() to be called, but it was not"
-            );
-        } else {
-            assertEquals(
-                    expectedStatusCode,
-                    disallowExitSecurityManager.getFirstExitStatusCode(),
-                    "Expected System.exit(" + expectedStatusCode + ") to be called, but it was not."
-            );
+        try {
+            if (failOnSystemExit) {
+                assertEquals(
+                        0,
+                        disallowExitSecurityManager.getPreventedSystemExitCount(),
+                        "Unexpected System.exit(" + disallowExitSecurityManager.getFirstExitStatusCode() + ") caught"
+                );
+            } else if (expectedStatusCode == null) {
+                assertNotNull(
+                        disallowExitSecurityManager.getFirstExitStatusCode(),
+                        "Expected System.exit() to be called, but it was not"
+                );
+            } else {
+                assertEquals(
+                        expectedStatusCode,
+                        disallowExitSecurityManager.getFirstExitStatusCode(),
+                        "Expected System.exit(" + expectedStatusCode + ") to be called, but it was not."
+                );
+            }
+        } finally {
+            // Clear state so if this is run as part of a @ParameterizedTest, the next time through we'll have the
+            // correct state
+            expectedStatusCode = null;
+            failOnSystemExit = false;
+            disallowExitSecurityManager = null;
         }
     }
 
@@ -83,6 +91,7 @@ public class SystemExitExtension implements BeforeEachCallback, AfterEachCallbac
         getAnnotation(context, ExpectSystemExitWithStatus.class).ifPresent(code -> expectedStatusCode = code.value());
 
         // Install our own SecurityManager
+        disallowExitSecurityManager = new DisallowExitSecurityManager(System.getSecurityManager());
         System.setSecurityManager(disallowExitSecurityManager);
     }
 

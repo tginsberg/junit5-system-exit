@@ -28,8 +28,13 @@ import org.junit.platform.launcher.LauncherDiscoveryRequest;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
+import org.junit.platform.launcher.listeners.TestExecutionSummary;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;
 
@@ -47,6 +52,26 @@ class TestUtils {
 
         assertEquals(1, listener.getSummary().getTestsFoundCount(), "Should have found one test");
         assertEquals(1, listener.getSummary().getTestsFailedCount(), "Single test should have failed");
+    }
+
+    static void assertParameterizedTestFails(final Class clazz, final Boolean... expectedSuccess) {
+        final SummaryGeneratingListener listener = executeTest(clazz, null);
+        final Set<Integer> failedTestNumbers = new HashSet<>();
+        for(final TestExecutionSummary.Failure failure : listener.getSummary().getFailures()) {
+            failedTestNumbers.add(
+                    Integer.parseInt(failure.getTestIdentifier().getDisplayName()) -1
+            );
+        }
+
+        assertEquals(expectedSuccess.length, listener.getSummary().getTestsFoundCount(), "Wrong number of tests found");
+        for(int testNumber = 0; testNumber < expectedSuccess.length; testNumber++) {
+            if(expectedSuccess[testNumber] && failedTestNumbers.contains(testNumber)) {
+                fail(String.format("Test %d should have succeeded, but didn't", testNumber));
+            } else if(!expectedSuccess[testNumber] && !failedTestNumbers.contains(testNumber)) {
+                fail(String.format("Test %d should have failed, but didn't", testNumber));
+            }
+        }
+
     }
 
     static void assertTestSucceeds(final Class clazz, final String testMethod) {

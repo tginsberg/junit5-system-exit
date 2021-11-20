@@ -29,14 +29,11 @@ plugins {
 }
 
 ext {
-    junitVersion = '5.7.1'
+    junitVersion = '5.8.1'
 }
 
 group 'com.ginsberg'
-version '1.1.1'
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+version '1.1.2'
 
 repositories {
     mavenCentral()
@@ -46,6 +43,7 @@ dependencies {
     compileOnly("org.junit.jupiter:junit-jupiter-api:$junitVersion")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
     testImplementation("org.junit.platform:junit-platform-launcher")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
@@ -115,8 +113,6 @@ publishing {
     }
     repositories {
         maven {
-
-            // change URLs to point to your repos, e.g. http://my.org/repo
             def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
             def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
             url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl

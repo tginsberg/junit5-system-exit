@@ -21,21 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package com.ginsberg.junit.exit;
 
-/**
- * A marker exception so we know that a <code>System.exit()</code> call was intercepted and prevented.
- */
-public class SystemExitPreventedException extends SecurityException {
+public interface ExitPreventerStrategy {
 
-    private final int statusCode;
+    Integer firstExitStatusCode();
 
-    public SystemExitPreventedException(int statusCode) {
-        this.statusCode = statusCode;
+    default void beforeTest() {
     }
 
-    public int getStatusCode() {
-        return statusCode;
+    default void afterTest() {
+    }
+
+    default void resetBetweenTests() {
     }
 }

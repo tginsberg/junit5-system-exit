@@ -13,11 +13,11 @@ public class WithParameterizedTest {
     @Test
     @DisplayName("@ParameterizedTest on method should reset state between tests")
     void failOnSystemExitOnClass() {
-        assertParameterizedTestFails(WithParameterizedTest.SucceedsAndThenFails.class, true, false, true);
+        assertParameterizedTestFails(WithParameterizedTest.SucceedsAndThenFailsTest.class, true, false, true);
     }
 
     @EnabledIfSystemProperty(named = "running_within_test", matches = "true")
-    static class SucceedsAndThenFails {
+    static class SucceedsAndThenFailsTest {
         @ParameterizedTest(name = "{index}")
         @ValueSource(booleans = {true, false, true})
         @ExpectSystemExit

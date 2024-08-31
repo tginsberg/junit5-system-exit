@@ -92,9 +92,7 @@ publishing {
     }
     repositories {
         maven {
-            url = if (version.toString()
-                    .endsWith("-SNAPSHOT")
-            ) URI("https://oss.sonatype.org/content/repositories/snapshots/")
+            url = if (junit5SystemExitVersion.endsWith("-SNAPSHOT")) URI("https://oss.sonatype.org/content/repositories/snapshots/")
             else URI("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
             credentials {
                 username = System.getenv("SONATYPE_USERNAME")

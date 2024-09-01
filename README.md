@@ -44,9 +44,9 @@ If you use the Groovy DSL, add this code to your `build.gradle` file in the `tes
 test {
     useJUnitPlatform()
 
-    jvmArgumentProviders.add({
-        ["-javaagent:${configurations.testRuntimeClasspath.files.find { it.name.contains('junit5-system-exit') }}"]
-    } as CommandLineArgumentProvider)
+    def junit5SystemExit = configurations.testRuntimeClasspath.files
+            .find { it.name.contains('junit5-system-exit') }
+    jvmArgumentProviders.add({["-javaagent:$junit5SystemExit"]} as CommandLineArgumentProvider)
 }
 ```
 
@@ -58,7 +58,9 @@ test {
     useJUnitPlatform()
 
     jvmArgumentProviders.add(CommandLineArgumentProvider {
-        listOf("-javaagent:${configurations.testRuntimeClasspath.get().files.find { it.name.contains("junit5-system-exit") }}")
+        listOf("-javaagent:${configurations.testRuntimeClasspath.get().files.find { 
+            it.name.contains("junit5-system-exit") }
+        }")
     })
 }
 ```

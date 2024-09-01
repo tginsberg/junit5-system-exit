@@ -194,7 +194,7 @@ public class MyTestClasses {
 
 ## FAQ
 
-#### I don't want `Junit5-System-Exit` to rewrite the bytecode of a specific class or method that calls `System.exit()`.
+### :question: I don't want `Junit5-System-Exit` to rewrite the bytecode of a specific class or method that calls `System.exit()`.
 
 That is supported. When this library detects an annotation called `@DoNotRewriteExitCalls` on any method or class, bytecode 
 rewriting will be skipped. While this library ships with its own implementation of `@DoNotRewriteExitCalls`, you'll probably
@@ -208,14 +208,14 @@ public @interface DoNotRewriteExitCalls {
 }
 ```
 
-#### JaCoCo issues a warning - "Execution data for class <some class> does not match"
+### :question: JaCoCo issues a warning - "Execution data for class <some class> does not match"
 
 This happens when JaCoCo's Java Agent runs after this one. The instructions above _should_ put this agent after JaCoCo
 but things change over time, and there are probably more gradle configurations that I have not tested. If you run into
 this and are confident that you followed the instructions above, please reach out to me with a minimal example and I will
 see what I can do.
 
-#### JaCoCo coverage is not accurate
+### :question: JaCoCo coverage is not accurate
 
 Because this Java Agent rewrites bytecode and must run after JaCoCo, there will be discrepancies in the JaCoCo Report.
 I have not found a way to account for this, but if you discover something please let me know!

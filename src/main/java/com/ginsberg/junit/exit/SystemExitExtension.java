@@ -40,8 +40,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.platform.commons.support.AnnotationSupport.findAnnotation;
 
 /**
- * Does the work of installing the DisallowExitSecurityManagerStrategy, interpreting the test results, and
- * returning the original SecurityManager to service.
+ * Entry point for JUnit tests. This class is responsible for installing the preferred `ExitPreventerStrategy`
+ * and interpreting the results.
  */
 @DoNotRewriteExitCalls
 public class SystemExitExtension implements BeforeEachCallback, AfterEachCallback, TestExecutionExceptionHandler {
@@ -59,7 +59,6 @@ public class SystemExitExtension implements BeforeEachCallback, AfterEachCallbac
 
     @Override
     public void afterEach(ExtensionContext context) {
-        // Return the original SecurityManager, if any, to service.
         exitPreventerStrategy.afterTest();
 
         try {
@@ -102,16 +101,19 @@ public class SystemExitExtension implements BeforeEachCallback, AfterEachCallbac
     }
 
     /**
-     * This is here so we can catch exceptions thrown by our own security manager and prevent them from
+     * This is here so we can catch exceptions thrown by the `ExitPreventerStrategy` and prevent them from
      * stopping the annotated test. If anything other than our own exception comes through, throw it because
-     * the system SecurityManager to which we delegate prevented some other action from happening.
+     * the `ExitPreventerStrategy` has encountered some other test-failing exception.
      *
      * @param context   the current extension context; never {@code null}
      * @param throwable the {@code Throwable} to handle; never {@code null}
      * @throws Throwable if the throwable argument is not a SystemExitPreventedException
      */
     @Override
-    public void handleTestExecutionException(ExtensionContext context, Throwable throwable) throws Throwable {
+    public void handleTestExecutionException(
+            final ExtensionContext context,
+            final Throwable throwable
+    ) throws Throwable {
         if (!(throwable instanceof SystemExitPreventedException)) {
             throw throwable;
         }

@@ -45,7 +45,7 @@ public class Junit5SystemExitAgent {
     }
 
     private final static Set<String> disallowedClassPrefixes = Set.of(
-            "com/sun", "java/", "jdk/", "worker/org/gradle", "sun/"
+            "com/sun/", "java/", "jdk/", "worker/org/gradle/", "sun/"
     );
 
     private final static String SKIP_ANNOTATION = "/DoNotRewriteExitCalls;";

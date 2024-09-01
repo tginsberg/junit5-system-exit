@@ -129,7 +129,7 @@ public class MyTestCases {
     @Test
     @FailOnSystemExit
     void thisTestWillFail() {
-        System.exit(1);
+        System.exit(1); // !!!
     }
 }
 ```
@@ -186,9 +186,9 @@ public class MyTestClasses {
 public class MyTestClasses {
     
     @Test
-    void thatSystemExitIsNotCalled() {
+    void thisTestWillFail() {
         assertThatDoesNotCallSystemExit(() ->
-                System.exit(42)
+                System.exit(42) // !!!
         );
     }
 }

@@ -6,17 +6,17 @@ and has one dependency ([ASM](https://asm.ow2.io/)).
 ## Differences Between Version 1.x and 2.x
 
 **Version 1.x** used an approach that [replaced the system `SecurityManager`](https://todd.ginsberg.com/post/testing-system-exit/).
-That worked fine until Java 17 where the `SecurityManager` was deprecated for removal. This method still works, however
-the JVM emits warnings and as of Java 18, a property to explicitly enable programmatic access to the `SecurityManager` is
-required. This method will eventually stop working. If you are still on 1.x and cannot move to 2.x, [you can still find the instructions here](Version1.xInstructions.md).
+That worked fine until Java 17 where the `SecurityManager` was deprecated for removal. As of Java 18, a property to 
+explicitly enable programmatic access to the `SecurityManager` is required. This method works for now but will eventually 
+stop working. If you are still on 1.x and cannot move to 2.x, [you can still find the instructions here](Version1.xInstructions.md).
 
 **Version 2.x** uses a Java Agent to rewrite bytecode as the JVM loads classes. Whenever a call to `System.exit()` is detected, 
-the Junit 5 System Exit Agent replaces that call with another method that we've written, so the JVM does not exit. 
-Because we're rewriting bytecode, this library now has one dependency - [ASM](https://asm.ow2.io/). 
-When the [Java Class-File API](https://openjdk.org/jeps/457) is released, I will explore using that instead.
+the Junit 5 System Exit Agent replaces that call with a function that records an attempt to exit, preventing the JVM from exiting. 
+As a consequence of rewriting bytecode, this library now has one dependency - [ASM](https://asm.ow2.io/). 
+When the [Java Class-File API](https://openjdk.org/jeps/457) is released, I will explore using that instead (or in addition to).
 
 Version 2 also supports AssertJ-style fluid assertions in addition to the annotation-driven approach that came with Version 1. 
-Other than enabling the Java Agent (see below), your code should not change when upgraing from Version 1.x to Version 2.x.
+Other than enabling the Java Agent (see below), your code should not change when upgrading from Version 1.x to Version 2.x.
 
 ## Installing
 
@@ -198,10 +198,9 @@ public class MyTestClasses {
 
 ### :question: I don't want `Junit5-System-Exit` to rewrite the bytecode of a specific class or method that calls `System.exit()`.
 
-That is supported. When this library detects an annotation called `@DoNotRewriteExitCalls` on any method or class, bytecode 
+This is supported. When this library detects any annotation called `@DoNotRewriteExitCalls` on any method or class, bytecode 
 rewriting will be skipped. While this library ships with its own implementation of `@DoNotRewriteExitCalls`, you'll probably
-want to write your own so you don't have to use this library outside the test scope. It is a simple marker annotation, 
-whose code would roughly look like this:
+want to write your own so you don't have to use this library outside the test scope. It is a marker annotation like this:
 
 ```java
 @Retention(RetentionPolicy.RUNTIME)

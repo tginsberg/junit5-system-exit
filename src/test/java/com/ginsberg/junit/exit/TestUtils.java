@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 Todd Ginsberg
+ * Copyright (c) 2024 Todd Ginsberg
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,21 +40,38 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMetho
 
 class TestUtils {
 
-    static void assertTestFails(final Class clazz, final String testMethod) {
+    static void assertTestFails(final Class<?> clazz, final String testMethod) {
         final SummaryGeneratingListener listener = executeTest(clazz, testMethod);
 
         assertEquals(1, listener.getSummary().getTestsFoundCount(), "Should have found one test");
         assertEquals(1, listener.getSummary().getTestsFailedCount(), "Single test should have failed");
     }
 
-    static void assertTestFails(final Class clazz) {
+    static void assertTestFails(final Class<?> clazz) {
         final SummaryGeneratingListener listener = executeTest(clazz, null);
 
         assertEquals(1, listener.getSummary().getTestsFoundCount(), "Should have found one test");
         assertEquals(1, listener.getSummary().getTestsFailedCount(), "Single test should have failed");
     }
 
-    static void assertParameterizedTestFails(final Class clazz, final Boolean... expectedSuccess) {
+    static void assertTestFailsExceptionally(
+            final Class<?> clazz,
+            final String testMethod,
+            final Class<? extends Exception> expectedExceptionClass
+    ) {
+        final SummaryGeneratingListener listener = executeTest(clazz, testMethod);
+        assertEquals(1, listener.getSummary().getFailures().size(), "Test did not finish exceptionally");
+        assertEquals(
+                expectedExceptionClass,
+                listener.getSummary().getFailures().get(0).getException().getClass(),
+                "Failed exceptionally but not because of the expected exception"
+        );
+
+        assertEquals(1, listener.getSummary().getTestsFoundCount(), "Should have found one test");
+        assertEquals(1, listener.getSummary().getTestsFailedCount(), "Single test should have failed");
+    }
+
+    static void assertParameterizedTestFails(final Class<?> clazz, final Boolean... expectedSuccess) {
         final SummaryGeneratingListener listener = executeTest(clazz, null);
         final Set<Integer> failedTestNumbers = new HashSet<>();
         for(final TestExecutionSummary.Failure failure : listener.getSummary().getFailures()) {
@@ -74,14 +91,14 @@ class TestUtils {
 
     }
 
-    static void assertTestSucceeds(final Class clazz, final String testMethod) {
+    static void assertTestSucceeds(final Class<?> clazz, final String testMethod) {
         final SummaryGeneratingListener listener = executeTest(clazz, testMethod);
 
         assertEquals(1, listener.getSummary().getTestsFoundCount(), "Should have found one test");
         assertEquals(1, listener.getSummary().getTestsSucceededCount(), "Single test should have succeeded");
     }
 
-    static void assertTestSucceeds(final Class clazz) {
+    static void assertTestSucceeds(final Class<?> clazz) {
         final SummaryGeneratingListener listener = executeTest(clazz, null);
 
         assertEquals(1, listener.getSummary().getTestsFoundCount(), "Should have found one test");
@@ -92,7 +109,7 @@ class TestUtils {
      * Execute the given test and then return a summary of its execution. This is used for tests that
      * succeed when other tests fail ("Test that a test decorated with X fails when...")
      */
-    private static SummaryGeneratingListener executeTest(final Class clazz, final String testMethod) {
+    private static SummaryGeneratingListener executeTest(final Class<?> clazz, final String testMethod) {
         final SummaryGeneratingListener listener = new SummaryGeneratingListener();
         try {
             System.setProperty("running_within_test", "true");

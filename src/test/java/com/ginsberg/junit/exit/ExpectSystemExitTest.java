@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Todd Ginsberg
+ * Copyright (c) 2024 Todd Ginsberg
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,12 +24,16 @@
 
 package com.ginsberg.junit.exit;
 
+import com.ginsberg.junit.exit.agent.AgentSystemExitHandlerStrategy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
+import java.lang.reflect.Field;
+
 import static com.ginsberg.junit.exit.TestUtils.assertTestFails;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ExpectSystemExitTest {
 
@@ -70,18 +74,35 @@ class ExpectSystemExitTest {
         @Test
         @DisplayName("System.exit() is expected for method but not called")
         void expectSystemExitThatDoesNotHappenMethod() {
-            assertTestFails(ExpectedFailuresAtTestLevel.class, "doNotCallSystemExit");
+            assertTestFails(ExpectedFailuresAtTestLevelTest.class, "doNotCallSystemExit");
         }
 
         @Test
         @DisplayName("System.exit() is expected for class but not called")
         void expectSystemExitThatDoesNotHappenClass() {
-            assertTestFails(ExpectedFailuresAtClassLevel.class);
+            assertTestFails(ExpectedFailuresAtClassLevelTest.class);
+        }
+
+        @Test
+        @DisplayName("Extension fails when agent instrumentation has not run")
+        void expectAgentInstrumentation() throws NoSuchFieldException, IllegalAccessException {
+            // Arrange
+            final Field field = AgentSystemExitHandlerStrategy.class.getDeclaredField("loadedFromAgent");
+            field.setAccessible(true);
+            field.setBoolean(AgentSystemExitHandlerStrategy.class, false);
+
+            // Act
+            try {
+                assertThrows(IllegalStateException.class, SystemExitExtension::new);
+            } finally {
+                field.setBoolean(AgentSystemExitHandlerStrategy.class, true);
+            }
         }
     }
 
+    @SuppressWarnings("JUnitMalformedDeclaration")
     @EnabledIfSystemProperty(named = "running_within_test", matches = "true")
-    static class ExpectedFailuresAtTestLevel {
+    static class ExpectedFailuresAtTestLevelTest {
         @Test
         @ExpectSystemExit
         void doNotCallSystemExit() {
@@ -89,9 +110,10 @@ class ExpectSystemExitTest {
         }
     }
 
+    @SuppressWarnings("JUnitMalformedDeclaration")
     @EnabledIfSystemProperty(named = "running_within_test", matches = "true")
     @ExpectSystemExit
-    static class ExpectedFailuresAtClassLevel {
+    static class ExpectedFailuresAtClassLevelTest {
         @Test
         void doNotCallSystemExit() {
             // Done! :)

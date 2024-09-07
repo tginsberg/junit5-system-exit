@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Todd Ginsberg
+ * Copyright (c) 2024 Todd Ginsberg
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import static com.ginsberg.junit.exit.TestUtils.assertTestFails;
+import static com.ginsberg.junit.exit.TestUtils.assertTestFailsExceptionally;
 
 class ExpectSystemExitWithStatusTest {
 
@@ -70,30 +71,41 @@ class ExpectSystemExitWithStatusTest {
         @Test
         @DisplayName("System.exit(1234) is expected but not called at all, on method")
         void expectSystemExitThatDoesNotHappenMethod() {
-            assertTestFails(ExpectedFailuresAtMethodLevel.class, "doNotCallSystemExit");
+            assertTestFails(ExpectedFailuresAtMethodLevelTest.class, "doNotCallSystemExit");
         }
 
         @Test
         @DisplayName("System.exit(1234) is expected but another code was used, on method")
         void expectSystemExitWithDifferentCodeMethod() {
-            assertTestFails(ExpectedFailuresAtMethodLevel.class, "exitWith4567");
+            assertTestFails(ExpectedFailuresAtMethodLevelTest.class, "exitWith4567");
         }
 
         @Test
         @DisplayName("System.exit(1234) is expected but not called at all, on method")
         void expectSystemExitThatDoesNotHappenClass() {
-            assertTestFails(ExpectedFailuresAtClassLevelNoExit.class);
+            assertTestFails(ExpectedFailuresAtClassLevelNoExitTest.class);
         }
 
         @Test
         @DisplayName("System.exit(1234) is expected but another code was used, on class")
         void expectSystemExitWithDifferentCodeClass() {
-            assertTestFails(ExpectedFailuresAtClassLevelDifferentCode.class);
+            assertTestFails(ExpectedFailuresAtClassLevelDifferentCodeTest.class);
+        }
+
+        @Test
+        @DisplayName("Exceptions other than SystemExitPreventedException bubble out")
+        void expectNonSystemExitExceptionsToBubbleOutAndFailTest() {
+            assertTestFailsExceptionally(
+                    ExpectedExceptionalFailureTest.class,
+                    "throwInsteadOfExit",
+                    IllegalStateException.class
+            );
         }
     }
 
+    @SuppressWarnings("JUnitMalformedDeclaration")
     @EnabledIfSystemProperty(named = "running_within_test", matches = "true")
-    static class ExpectedFailuresAtMethodLevel {
+    static class ExpectedFailuresAtMethodLevelTest {
 
         @Test
         @ExpectSystemExitWithStatus(1234)
@@ -108,9 +120,10 @@ class ExpectSystemExitWithStatusTest {
         }
     }
 
+    @SuppressWarnings("JUnitMalformedDeclaration")
     @EnabledIfSystemProperty(named = "running_within_test", matches = "true")
     @ExpectSystemExitWithStatus(1234)
-    static class ExpectedFailuresAtClassLevelNoExit {
+    static class ExpectedFailuresAtClassLevelNoExitTest {
 
         @Test
         void doNotCallSystemExit() {
@@ -119,12 +132,23 @@ class ExpectSystemExitWithStatusTest {
 
     }
 
+    @SuppressWarnings("JUnitMalformedDeclaration")
     @EnabledIfSystemProperty(named = "running_within_test", matches = "true")
     @ExpectSystemExitWithStatus(1234)
-    static class ExpectedFailuresAtClassLevelDifferentCode {
+    static class ExpectedFailuresAtClassLevelDifferentCodeTest {
         @Test
         void exitWith4567() {
             System.exit(4567);
+        }
+    }
+
+    @SuppressWarnings("JUnitMalformedDeclaration")
+    @EnabledIfSystemProperty(named = "running_within_test", matches = "true")
+    @ExpectSystemExit
+    static class ExpectedExceptionalFailureTest {
+        @Test
+        void throwInsteadOfExit() {
+            throw new IllegalStateException();
         }
     }
 

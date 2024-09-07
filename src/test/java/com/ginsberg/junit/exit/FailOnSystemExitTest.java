@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 Todd Ginsberg
+ * Copyright (c) 2024 Todd Ginsberg
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,29 +36,30 @@ class FailOnSystemExitTest {
     @Test
     @DisplayName("@FailOnSystemExit on method - exception caught and fails test")
     void failOnSystemExitOnMethod() {
-        assertTestFails(FailOnSystemExitAtTestLevel.class, "callsSystemExit");
+        assertTestFails(FailOnSystemExitAtTestLevelTest.class, "callsSystemExit");
     }
 
     @Test
     @DisplayName("@FailOnSystemExit on method - System.exit not called")
     void succeedWhenNotCallingSystemExitInMethod() {
-        assertTestSucceeds(FailOnSystemExitAtTestLevel.class, "doesNotCallSystemExit");
+        assertTestSucceeds(FailOnSystemExitAtTestLevelTest.class, "doesNotCallSystemExit");
     }
 
     @Test
     @DisplayName("@FailOnSystemExit on class - exception caught and fails test")
     void failOnSystemExitOnClass() {
-        assertTestFails(FailOnSystemExitAtClassLevel.class);
+        assertTestFails(FailOnSystemExitAtClassLevelTest.class);
     }
 
     @Test
     @DisplayName("@FailOnSystemExit on class - System.exit not called")
     void succeedWhenNotCallingSystemExitOnClass() {
-        assertTestSucceeds(FailOnSystemExitAtClassLevelWithoutSystemExit.class);
+        assertTestSucceeds(FailOnSystemExitAtClassLevelWithoutSystemExitTest.class);
     }
 
+    @SuppressWarnings("JUnitMalformedDeclaration")
     @EnabledIfSystemProperty(named = "running_within_test", matches = "true")
-    static class FailOnSystemExitAtTestLevel {
+    static class FailOnSystemExitAtTestLevelTest {
         @Test
         @FailOnSystemExit
         void callsSystemExit() {
@@ -72,18 +73,20 @@ class FailOnSystemExitTest {
         }
     }
 
+    @SuppressWarnings("JUnitMalformedDeclaration")
     @EnabledIfSystemProperty(named = "running_within_test", matches = "true")
     @FailOnSystemExit
-    static class FailOnSystemExitAtClassLevel {
+    static class FailOnSystemExitAtClassLevelTest {
         @Test
         void callsSystemExit() {
             System.exit(42);
         }
     }
 
+    @SuppressWarnings("JUnitMalformedDeclaration")
     @EnabledIfSystemProperty(named = "running_within_test", matches = "true")
     @FailOnSystemExit
-    static class FailOnSystemExitAtClassLevelWithoutSystemExit {
+    static class FailOnSystemExitAtClassLevelWithoutSystemExitTest {
         @Test
         void doesNotCallSystemExit() {
             // Nothing to do

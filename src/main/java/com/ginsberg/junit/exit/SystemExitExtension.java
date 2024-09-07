@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 Todd Ginsberg
+ * Copyright (c) 2024 Todd Ginsberg
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,8 @@
 
 package com.ginsberg.junit.exit;
 
+import com.ginsberg.junit.exit.agent.AgentSystemExitHandlerStrategy;
+import com.ginsberg.junit.exit.agent.DoNotRewriteExitCalls;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -34,39 +36,46 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.platform.commons.support.AnnotationSupport.findAnnotation;
 
 /**
- * Does the work of installing the DisallowExitSecurityManager, interpreting the test results, and
- * returning the original SecurityManager to service.
+ * Entry point for JUnit tests. This class is responsible for installing the preferred `ExitPreventerStrategy`
+ * and interpreting the results.
  */
+@DoNotRewriteExitCalls
 public class SystemExitExtension implements BeforeEachCallback, AfterEachCallback, TestExecutionExceptionHandler {
     private Integer expectedStatusCode;
     private boolean failOnSystemExit;
-    private DisallowExitSecurityManager disallowExitSecurityManager;
-    private SecurityManager originalSecurityManager;
+    private final ExitPreventerStrategy exitPreventerStrategy;
+
+    public SystemExitExtension() {
+        if(AgentSystemExitHandlerStrategy.isLoadedFromAgent()) {
+            exitPreventerStrategy = new AgentSystemExitHandlerStrategy();
+        } else {
+            throw new IllegalStateException("SystemExitExtension Agent not loaded, please see documentation");
+        }
+    }
 
     @Override
     public void afterEach(ExtensionContext context) {
-        // Return the original SecurityManager, if any, to service.
-        System.setSecurityManager(originalSecurityManager);
+        exitPreventerStrategy.afterTest();
 
         try {
             if (failOnSystemExit) {
-                assertEquals(
-                        0,
-                        disallowExitSecurityManager.getPreventedSystemExitCount(),
-                        "Unexpected System.exit(" + disallowExitSecurityManager.getFirstExitStatusCode() + ") caught"
+                assertNull(
+                        exitPreventerStrategy.firstExitStatusCode(),
+                        "Unexpected System.exit(" + exitPreventerStrategy.firstExitStatusCode() + ") caught"
                 );
             } else if (expectedStatusCode == null) {
                 assertNotNull(
-                        disallowExitSecurityManager.getFirstExitStatusCode(),
+                        exitPreventerStrategy.firstExitStatusCode(),
                         "Expected System.exit() to be called, but it was not"
                 );
             } else {
                 assertEquals(
                         expectedStatusCode,
-                        disallowExitSecurityManager.getFirstExitStatusCode(),
+                        exitPreventerStrategy.firstExitStatusCode(),
                         "Expected System.exit(" + expectedStatusCode + ") to be called, but it was not."
                 );
             }
@@ -75,49 +84,47 @@ public class SystemExitExtension implements BeforeEachCallback, AfterEachCallbac
             // correct state
             expectedStatusCode = null;
             failOnSystemExit = false;
-            disallowExitSecurityManager = null;
+            exitPreventerStrategy.resetBetweenTests();
         }
     }
 
     @Override
     public void beforeEach(final ExtensionContext context) {
-        // Set aside the current SecurityManager
-        originalSecurityManager = System.getSecurityManager();
-
         // Should we fail on a System.exit() rather than letting it bubble out?
         failOnSystemExit = getAnnotation(context, FailOnSystemExit.class).isPresent();
 
         // Get the expected exit status code, if any
         getAnnotation(context, ExpectSystemExitWithStatus.class).ifPresent(code -> expectedStatusCode = code.value());
 
-        // Install our own SecurityManager
-        disallowExitSecurityManager = new DisallowExitSecurityManager(System.getSecurityManager());
-        System.setSecurityManager(disallowExitSecurityManager);
+        // Allow the strategy to do pre-test housekeeping
+        exitPreventerStrategy.beforeTest();
     }
 
     /**
-     * This is here so we can catch exceptions thrown by our own security manager and prevent them from
+     * This is here so we can catch exceptions thrown by the `ExitPreventerStrategy` and prevent them from
      * stopping the annotated test. If anything other than our own exception comes through, throw it because
-     * the system SecurityManager to which we delegate prevented some other action from happening.
+     * the `ExitPreventerStrategy` has encountered some other test-failing exception.
      *
      * @param context   the current extension context; never {@code null}
      * @param throwable the {@code Throwable} to handle; never {@code null}
      * @throws Throwable if the throwable argument is not a SystemExitPreventedException
      */
     @Override
-    public void handleTestExecutionException(ExtensionContext context, Throwable throwable) throws Throwable {
+    public void handleTestExecutionException(
+            final ExtensionContext context,
+            final Throwable throwable
+    ) throws Throwable {
         if (!(throwable instanceof SystemExitPreventedException)) {
             throw throwable;
         }
     }
 
     // Find the annotation on a method, or failing that, a class.
-    private <T extends Annotation> Optional<T> getAnnotation(final ExtensionContext context, final Class<T> annotationClass) {
+    private <T extends Annotation> Optional<T> getAnnotation(
+            final ExtensionContext context,
+            final Class<T> annotationClass
+    ) {
         final Optional<T> method = findAnnotation(context.getTestMethod(), annotationClass);
-        if (method.isPresent()) {
-            return method;
-        } else {
-            return findAnnotation(context.getTestClass(), annotationClass);
-        }
+        return method.isPresent() ? method : findAnnotation(context.getTestClass(), annotationClass);
     }
 }

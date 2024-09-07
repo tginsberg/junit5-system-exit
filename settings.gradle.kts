@@ -22,20 +22,4 @@
  * SOFTWARE.
  */
 
-package com.ginsberg.junit.exit;
-
-/**
- * A marker exception so we know that a <code>System.exit()</code> call was intercepted and prevented.
- */
-public class SystemExitPreventedException extends SecurityException {
-
-    private final int statusCode;
-
-    public SystemExitPreventedException(int statusCode) {
-        this.statusCode = statusCode;
-    }
-
-    public int getStatusCode() {
-        return statusCode;
-    }
-}
+rootProject.name = "junit5-system-exit"

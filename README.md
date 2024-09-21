@@ -80,8 +80,23 @@ test {
 
 #### 2. Enable the Java Agent
 
-Add the following `<argLine/>` to your `pom.xml`. This should account for other Java Agents and run after any others
-you may have, such as JaCoCo.
+In `pom.xml`, add the `properties` goal to `maven-dependency-plugin`, in order to create properties for each dependency.
+
+```xml
+<plugin>
+    <artifactId>maven-dependency-plugin</artifactId>
+    <executions>
+        <execution>
+            <goals>
+                <goal>properties</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+```
+
+Then add the following `<argLine/>` to `maven-surefire-plugin`, which references the property we just created for 
+this library. This should account for other Java Agents and run after any others you may have, such as JaCoCo.
 
 ```xml
 <plugin>
@@ -92,6 +107,8 @@ you may have, such as JaCoCo.
     </configuration>
 </plugin>
 ```
+
+And 
 
 ## Use Cases - Annotation-based
 

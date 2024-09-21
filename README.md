@@ -80,7 +80,7 @@ test {
 
 #### 2. Enable the Java Agent
 
-Add the `properties` goal to `maven-dependency-plugin`, to create properties for each dependency.
+In `pom.xml`, add the `properties` goal to `maven-dependency-plugin`, in order to create properties for each dependency.
 
 ```xml
 <plugin>
@@ -95,8 +95,8 @@ Add the `properties` goal to `maven-dependency-plugin`, to create properties for
 </plugin>
 ```
 
-Then add the following `<argLine/>` to your `pom.xml`, which references the property we just created for this library. This 
-should account for other Java Agents and run after any others you may have, such as JaCoCo.
+Then add the following `<argLine/>` to `maven-surefire-plugin`, which references the property we just created for 
+this library. This should account for other Java Agents and run after any others you may have, such as JaCoCo.
 
 ```xml
 <plugin>

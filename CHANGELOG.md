@@ -1,5 +1,8 @@
 # Change Log for `junit5-system-exit`
 
+### 2.0.1
+- TBD
+
 ### 2.0.0
 - Remove terminally deprecated `SecurityManager` approach for preventing `System.exit()` calls.
 - Add Java Agent-based approach. Calls to `System.exit()` are rewritten as classes are loaded.

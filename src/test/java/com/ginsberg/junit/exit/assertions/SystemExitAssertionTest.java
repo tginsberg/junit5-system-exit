@@ -102,6 +102,18 @@ class SystemExitAssertionTest {
         }
     }
 
+    @Test
+    void multipleCallsToExit() {
+        assertThatCallsSystemExit(() -> {
+            try {
+                System.exit(42);
+                System.exit(1);
+            } catch (final Exception e) {
+                System.exit(2);
+            }
+        }).withExitCode(42);
+    }
+
     private void justExit() {
         System.exit(42);
     }

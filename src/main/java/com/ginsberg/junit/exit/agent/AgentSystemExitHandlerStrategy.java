@@ -39,7 +39,7 @@ public class AgentSystemExitHandlerStrategy implements ExitPreventerStrategy {
             if (firstExitStatusCode == null) {
                 firstExitStatusCode = status;
             }
-            throw new SystemExitPreventedException(status);
+            throw new SystemExitPreventedException(firstExitStatusCode);
         } else {
             System.exit(status);
         }

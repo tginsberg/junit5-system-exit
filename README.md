@@ -28,7 +28,7 @@ your test task. Please consult the [FAQ](#faq) below if you run into problems.
 #### 1. Copy the following into your `build.gradle` or `build.gradle.kts`.
 
 ```groovy
-testImplementation("com.ginsberg:junit5-system-exit:2.0.1")
+testImplementation("com.ginsberg:junit5-system-exit:2.0.2")
 ```
 
 #### 2. Enable the Java Agent
@@ -73,7 +73,7 @@ test {
 <dependency>
     <groupId>com.ginsberg</groupId>
     <artifactId>junit5-system-exit</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
     <scope>test</scope>
 </dependency>
 ```

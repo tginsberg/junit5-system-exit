@@ -71,6 +71,7 @@ dependencies {
         because("Starting in Gradle 9.0, this needs to be an explicitly declared dependency")
     }
 
+    testImplementation("org.assertj:assertj-core:3.26.3")
     testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
     testImplementation("org.junit.platform:junit-platform-launcher:$junitPlatformLauncherVersion")

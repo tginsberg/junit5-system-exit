@@ -65,6 +65,7 @@ public class SystemExitAssertion {
     private static SystemExitPreventedException catchSystemExitFrom(final Runnable function) {
         final ExitPreventerStrategy exitPreventerStrategy = new AgentSystemExitHandlerStrategy();
         try {
+            exitPreventerStrategy.resetBetweenTests();
             exitPreventerStrategy.beforeTest();
             function.run();
         } catch (SystemExitPreventedException e) {

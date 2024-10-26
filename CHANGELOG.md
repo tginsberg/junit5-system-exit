@@ -1,5 +1,8 @@
 # Change Log for `junit5-system-exit`
 
+### 2.0.2
+- TBD
+
 ### 2.0.1
 - Bugfix: [[#20]](https://github.com/tginsberg/junit5-system-exit/issues/20): Multiple calls to `System.exit()` do not always report the first exit status code.
 

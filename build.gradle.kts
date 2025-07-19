@@ -42,13 +42,13 @@ val gitBranch = gitBranch()
 val junit5SystemExitVersion = if (gitBranch == "main" || gitBranch.startsWith("release/")) version.toString()
 else "${gitBranch.substringAfterLast("/")}-SNAPSHOT"
 
-val asmVersion by extra("9.7")
-val junitVersion by extra("5.11.0")
-val junitPlatformLauncherVersion by extra("1.11.0")
+val asmVersion by extra("9.8")
+val junitVersion by extra("5.13.3")
+val junitPlatformLauncherVersion by extra("1.13.3")
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(24)
     }
     withJavadocJar()
     withSourcesJar()

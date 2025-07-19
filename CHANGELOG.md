@@ -1,5 +1,8 @@
 # Change Log for `junit5-system-exit`
 
+### 2.0.3
+- Bugfix: [[#34]](https://github.com/tginsberg/junit5-system-exit/issues/24): Support JDK 24 by upgrading asm lib version from 9.7 to 9.8
+
 ### 2.0.2
 - Bugfix: [[#24]](https://github.com/tginsberg/junit5-system-exit/issues/24): Reset state between assertion calls.
 

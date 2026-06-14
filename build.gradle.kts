@@ -104,19 +104,6 @@ jreleaser {
                     applyMavenCentralRules = true
                 }
             }
-            nexus2 {
-                create("snapshot-deploy") {
-                    active.set(org.jreleaser.model.Active.SNAPSHOT)
-                    snapshotUrl = "https://central.sonatype.com/repository/maven-snapshots"
-                    url = "https://central.sonatype.com/repository/maven-snapshots"
-                    sign = false
-                    applyMavenCentralRules = true
-                    snapshotSupported = true
-                    closeRepository = false
-                    releaseRepository = false
-                    stagingRepository("build/staging-deploy")
-                }
-            }
         }
 
     }

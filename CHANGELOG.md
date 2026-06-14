@@ -1,5 +1,8 @@
 # Change Log for `junit5-system-exit`
 
+## 2.0.3
+- Upgrade ASM to 9.9, to extend support through Java 26.
+
 ### 2.0.2
 - Bugfix: [[#24]](https://github.com/tginsberg/junit5-system-exit/issues/24): Reset state between assertion calls.
 

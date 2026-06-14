@@ -39,7 +39,7 @@ group = "com.ginsberg"
 version = file("VERSION.txt").readLines().first()
 
 val gitBranch = gitBranch()
-val junit5SystemExitVersion = if (gitBranch == "main" || gitBranch.startsWith("release/")) version.toString()
+val junit5SystemExitVersion = if (gitBranch == "master" || gitBranch.startsWith("release/")) version.toString()
 else "${gitBranch.substringAfterLast("/")}-SNAPSHOT"
 
 val asmVersion by extra("9.9")

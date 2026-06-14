@@ -31,3 +31,11 @@ jobs:
           JRELEASER_DEPLOY_MAVEN_NEXUS2_SNAPSHOT_DEPLOY_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           SONATYPE_SIGNING_KEY: ${{ secrets.SONATYPE_SIGNING_KEY }}
           SONATYPE_SIGNING_PASSPHRASE: ${{ secrets.SONATYPE_SIGNING_PASSPHRASE }}
+
+      - name: Upload JReleaser logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jreleaser-logs
+          path: build/jreleaser/
+

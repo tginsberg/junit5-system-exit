@@ -1,10 +1,33 @@
-on:
-  workflow_dispatch:
+name: Publish
+
+on: workflow_dispatch
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - uses: gradle/actions/wrapper-validation@v5
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
         with:
-          ref: ${{ github.ref }}
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Publish
+        run: ./gradlew clean build check publish jreleaserDeploy --no-daemon
+        env:
+          JRELEASER_DEPLOY_MAVEN_MAVENCENTRAL_RELEASE_DEPLOY_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+          JRELEASER_DEPLOY_MAVEN_MAVENCENTRAL_RELEASE_DEPLOY_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          JRELEASER_DEPLOY_MAVEN_NEXUS2_SNAPSHOT_DEPLOY_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+          JRELEASER_DEPLOY_MAVEN_NEXUS2_SNAPSHOT_DEPLOY_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          SONATYPE_SIGNING_KEY: ${{ secrets.SONATYPE_SIGNING_KEY }}
+          SONATYPE_SIGNING_PASSPHRASE: ${{ secrets.SONATYPE_SIGNING_PASSPHRASE }}

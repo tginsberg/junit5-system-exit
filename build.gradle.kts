@@ -23,13 +23,13 @@
  */
 
 import java.io.IOException
-import java.net.URI
 
 plugins {
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
     id("java-library")
-    id("org.barfuin.gradle.jacocolog") version "3.1.0"
+    id("org.barfuin.gradle.jacocolog") version "4.0.2"
+    id("org.jreleaser") version "1.22.0"
     id("maven-publish")
     id("signing")
 }
@@ -42,9 +42,9 @@ val gitBranch = gitBranch()
 val junit5SystemExitVersion = if (gitBranch == "main" || gitBranch.startsWith("release/")) version.toString()
 else "${gitBranch.substringAfterLast("/")}-SNAPSHOT"
 
-val asmVersion by extra("9.7")
-val junitVersion by extra("5.11.0")
-val junitPlatformLauncherVersion by extra("1.11.0")
+val asmVersion by extra("9.9")
+val junitVersion by extra("5.14.4")
+val junitPlatformLauncherVersion by extra("1.14.4")
 
 java {
     toolchain {
@@ -71,11 +71,57 @@ dependencies {
         because("Starting in Gradle 9.0, this needs to be an explicitly declared dependency")
     }
 
-    testImplementation("org.assertj:assertj-core:3.26.3")
+    testImplementation("org.assertj:assertj-core:3.27.7")
     testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
-    testImplementation("org.junit.platform:junit-platform-launcher:$junitPlatformLauncherVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:${junitVersion}")
+    testImplementation("org.junit.platform:junit-platform-launcher:${junitPlatformLauncherVersion}")
 }
+
+
+jreleaser {
+    project {
+        name.set("junit5-system-exit")
+        authors.add("Todd Ginsberg")
+        license.set("Apache-2.0")
+
+        links {
+            homepage.set("https://github.com/tginsberg/junit5-system-exit")
+        }
+    }
+
+    signing {
+        active.set(org.jreleaser.model.Active.NEVER)
+    }
+
+    deploy {
+        maven {
+            mavenCentral {
+                create("release-deploy") {
+                    active.set(org.jreleaser.model.Active.RELEASE)
+                    url = "https://central.sonatype.com/api/v1/publisher"
+                    stagingRepository("build/staging-deploy")
+                    sign = false
+                    applyMavenCentralRules = true
+                }
+            }
+            nexus2 {
+                create("snapshot-deploy") {
+                    active.set(org.jreleaser.model.Active.SNAPSHOT)
+                    snapshotUrl = "https://central.sonatype.com/repository/maven-snapshots"
+                    url = "https://central.sonatype.com/repository/maven-snapshots"
+                    sign = false
+                    applyMavenCentralRules = true
+                    snapshotSupported = true
+                    closeRepository = false
+                    releaseRepository = false
+                    stagingRepository("build/staging-deploy")
+                }
+            }
+        }
+
+    }
+}
+
 
 publishing {
     publications {
@@ -97,7 +143,7 @@ publishing {
                 licenses {
                     license {
                         name = "The Apache License, Version 2.0"
-                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
                     }
                 }
                 developers {
@@ -117,18 +163,16 @@ publishing {
     }
     repositories {
         maven {
-            url = if (version.toString().endsWith("-SNAPSHOT")) URI("https://oss.sonatype.org/content/repositories/snapshots/")
-            else URI("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-            credentials {
-                username = System.getenv("SONATYPE_USERNAME")
-                password = System.getenv("SONATYPE_TOKEN")
-            }
+            url = uri(layout.buildDirectory.dir("staging-deploy").get().asFile)
         }
     }
 }
 
 signing {
-    useInMemoryPgpKeys(System.getenv("SONATYPE_SIGNING_KEY") , System.getenv("SONATYPE_SIGNING_PASSPHRASE"))
+    useInMemoryPgpKeys(
+        System.getenv("SONATYPE_SIGNING_KEY"),
+        System.getenv("SONATYPE_SIGNING_PASSPHRASE")
+    )
     sign(publishing.publications["junit5-system-exit"])
 }
 

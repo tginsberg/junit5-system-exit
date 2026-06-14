@@ -23,7 +23,7 @@ jobs:
           cache: 'gradle'
 
       - name: Publish
-        run: ./gradlew clean build check publish jreleaserDeploy --no-daemon
+        run: ./gradlew clean build check publish jreleaserDeploy --no-daemon --stacktrace --info
         env:
           JRELEASER_DEPLOY_MAVEN_MAVENCENTRAL_RELEASE_DEPLOY_TOKEN: ${{ secrets.OSSRH_TOKEN }}
           JRELEASER_DEPLOY_MAVEN_MAVENCENTRAL_RELEASE_DEPLOY_USERNAME: ${{ secrets.OSSRH_USERNAME }}

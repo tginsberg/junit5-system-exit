@@ -41,7 +41,7 @@ If you use the Groovy DSL, add this code to your `build.gradle` file in the `tes
 ```groovy
 // Groovy DSL
 
-test {
+tasks.named('test') {
     useJUnitPlatform()
 
     def junit5SystemExit = configurations.testRuntimeClasspath.files
@@ -54,7 +54,7 @@ or if you use the Kotlin DSL...
 
 ```kotlin
 // Kotlin DSL
-test {
+tasks.test {
     useJUnitPlatform()
 
     jvmArgumentProviders.add(CommandLineArgumentProvider {
